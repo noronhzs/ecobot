@@ -1,0 +1,48 @@
+import discord
+from discord.ext import commands
+
+from config import TOKEN
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+@bot.event
+async def on_ready():
+    print(f'Bot conectado com {bot.user}')
+
+registros_lixo = {}
+
+@bot.command()
+async def quantidade(ctx, peso: float):
+    if peso <=0:
+        await ctx.send('O peso deve ser maior que zero.')
+        return
+
+    usuario = ctx.author.id
+
+    if usuario not in registros_lixo:
+        registros_lixo[usuario] = []
+
+    registros_lixo[usuario].append(peso)
+
+    await ctx.send(f'Você registrou {peso:.2f} kg de lixo produzido.')
+
+@bot.command()
+async def total(ctx):
+    usuario = ctx.author.id
+
+    if usuario not in registros_lixo or not registros_lixo[usuario]:
+        await ctx.send('Você ainda não registrou nenhum peso de lixo.')
+        return
+
+    total = sum(registros_lixo[usuario])
+    await ctx.send(f'O total do lixo produzido por você é: {total:.2f} kg.')
+
+@bot.command()
+async def economia_agua(ctx):
+    await ctx.send(f'Dicas de economia de água: \n 1. Feche a torneira enquanto escova os dentes ou ensaboa as mãos. \n 2. Reaproveite a água da chuva para regar plantas e jardins. \n 3. Conserte vazamentos em torneiras e encanamentos o mais rápido possível. \n 4. Utilize máquinas de lavar roupas e louças apenas com carga completa. \n 5. Opte por chuveiros e torneiras com dispositivos economizadores de água.')   
+
+
+bot.run(TOKEN)
